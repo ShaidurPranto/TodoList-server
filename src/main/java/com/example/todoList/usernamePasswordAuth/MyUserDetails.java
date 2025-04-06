@@ -1,16 +1,16 @@
-package com.example.todoList.model;
+package com.example.todoList.usernamePasswordAuth;
 
+import com.example.todoList.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class MyUserDetails implements UserDetails {
 
-    private  User user;
+    private User user;
 
     public MyUserDetails(User user){
         this.user = user;

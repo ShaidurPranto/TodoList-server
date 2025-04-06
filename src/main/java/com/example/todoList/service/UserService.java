@@ -1,5 +1,6 @@
 package com.example.todoList.service;
 
+import com.example.todoList.JWTAuth.JWTService;
 import com.example.todoList.model.User;
 import com.example.todoList.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.example.todoList.service;
+package com.example.todoList.JWTAuth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -47,7 +47,7 @@ public class JWTService {
                 .add(claims)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 30))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2)) // 2 hours
                 .and()
                 .signWith(getKey())
                 .compact();

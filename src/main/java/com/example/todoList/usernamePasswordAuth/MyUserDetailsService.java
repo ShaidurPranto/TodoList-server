@@ -1,6 +1,5 @@
-package com.example.todoList.service;
+package com.example.todoList.usernamePasswordAuth;
 
-import com.example.todoList.model.MyUserDetails;
 import com.example.todoList.model.User;
 import com.example.todoList.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
