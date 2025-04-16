@@ -1,16 +1,24 @@
 package com.example.todoList.service;
 
 import com.example.todoList.JWTAuth.JWTService;
+import com.example.todoList.model.Task;
 import com.example.todoList.model.User;
 import com.example.todoList.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -49,6 +57,136 @@ public class UserService {
             return jwtService.generateToken(user.getEmail());
         } else {
             return "fail";
+        }
+    }
+
+    // get all tasks of a user
+    public ResponseEntity<?> getUserTasks(HttpServletRequest request) {
+        String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                List<Task> tasks = user.getTasks();
+                if (tasks != null && !tasks.isEmpty()) {
+                    // Filter tasks with eventTime after the current time
+                    List<Task> futureTasks = tasks.stream()
+                            .filter(task -> task.getEventTime().after(new Date()))
+                            .collect(Collectors.toList());
+
+                    return ResponseEntity.ok(futureTasks);
+                } else {
+                    return ResponseEntity.ok(Collections.emptyList()); // No tasks
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+
+    // add a task to a user
+    public String addTask(Task task, HttpServletRequest request) {
+        String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                List<Task> tasks = user.getTasks();
+                if (tasks == null) {
+                    tasks = new ArrayList<>();
+                } else {
+                    for (Task t : tasks) {
+                        if (t.getDefinition().equals(task.getDefinition())
+                                && t.getEventTime().equals(task.getEventTime())) {
+                            return "Task already exists";
+                        }
+                    }
+                }
+
+                tasks.add(task);
+                user.setTasks(tasks);
+                userRepository.save(user);
+                return "Task added successfully";
+            } else {
+                return "User not found";
+            }
+        } else {
+            return "Invalid token";
+        }
+    }
+
+
+    // update a task of a user
+    public ResponseEntity<?> updateTask(Task task, HttpServletRequest request) {
+        String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                List<Task> tasks = user.getTasks();
+                if (tasks != null && !tasks.isEmpty()) {
+                    boolean taskUpdated = false;
+                    for (Task t : tasks) {
+                        if (t.getDefinition().equals(task.getDefinition())
+                                && t.getEventTime().equals(task.getEventTime())) {
+                            t.setStatus(task.getStatus());
+                            taskUpdated = true;
+                            break;
+                        }
+                    }
+
+                    if (!taskUpdated) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+                    }
+
+                    user.setTasks(tasks);
+                    userRepository.save(user);
+                    System.out.println("Task updated successfully");
+
+                    // Filter tasks to only include future tasks
+                    Date now = new Date();
+                    List<Task> futureTasks = tasks.stream()
+                            .filter(t -> t.getEventTime().after(now))
+                            .collect(Collectors.toList());
+
+                    return ResponseEntity.ok(futureTasks);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tasks found for this user");
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+    // delete a task of a user
+    public ResponseEntity<?> deleteTask(Task task, HttpServletRequest request) {
+        String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                List<Task> tasks = user.getTasks();
+                if (tasks != null && !tasks.isEmpty()) {
+                    for (Task t : tasks) {
+                        if (t.getDefinition().equals(task.getDefinition())
+                        && t.getEventTime().equals(task.getEventTime())) {
+                            tasks.remove(t);
+                            user.setTasks(tasks);
+                            userRepository.save(user);
+                            return ResponseEntity.ok("Task deleted successfully");
+                        }
+                    }
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tasks found for this user");
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
     }
 }

@@ -28,17 +28,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .cors()  // Ensure CORS is enabled here
+                .and()
+                .csrf(csrf -> csrf.disable())  // Disable CSRF (because you're using JWTs)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/signup","/users/login").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/users/signup", "/users/login").permitAll()  // Allow these endpoints without authentication
+                        .anyRequest().authenticated()  // Protect the other endpoints
                 )
-//                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless authentication (JWT)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // JWT filter before username/password filter
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
