@@ -169,15 +169,30 @@ public class UserService {
             if (user != null) {
                 List<Task> tasks = user.getTasks();
                 if (tasks != null && !tasks.isEmpty()) {
-                    for (Task t : tasks) {
+                    // Create a copy of the tasks list to avoid modifying it during iteration
+                    List<Task> tasksToRemove = new ArrayList<>(tasks);
+
+                    for (Task t : tasksToRemove) {
                         if (t.getDefinition().equals(task.getDefinition())
-                        && t.getEventTime().equals(task.getEventTime())) {
+                                && t.getEventTime().equals(task.getEventTime())) {
+
+                            // Remove the task after looping through the list
                             tasks.remove(t);
+
                             user.setTasks(tasks);
                             userRepository.save(user);
-                            return ResponseEntity.ok("Task deleted successfully");
+
+                            // Filter tasks to only include future tasks
+                            Date now = new Date();
+                            List<Task> futureTasks = tasks.stream()
+                                    .filter(tt -> tt.getEventTime().after(now))
+                                    .collect(Collectors.toList());
+
+                            return ResponseEntity.ok(futureTasks);
                         }
                     }
+
+                    // If the task wasn't found, return a not found response
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
                 } else {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No tasks found for this user");
@@ -189,4 +204,5 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
     }
+
 }
