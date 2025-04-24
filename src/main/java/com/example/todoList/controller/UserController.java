@@ -4,6 +4,7 @@ import com.example.todoList.model.Task;
 import com.example.todoList.model.User;
 import com.example.todoList.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +23,22 @@ public class UserController {
         return "Hello Pranto!";
     }
 
+    // api for testing purpose (no usage)
+    @GetMapping("/test")
+    public String test() {
+        System.out.println("Test endpoint hit");
+        return "hello";
+    }
+
     // Endpoint to create a new user
     @PostMapping("/signup")
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ResponseEntity<?> signup(@RequestBody User user) {
+        System.out.println("Received user signup request: ");
+        User createdUser = userService.createUser(user);
+        if (createdUser == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already exists");
+        }
+        return ResponseEntity.ok("User created successfully");
     }
 
     // Endpoint to login a user
@@ -58,5 +71,17 @@ public class UserController {
     @PutMapping("/tasks/update")
     public ResponseEntity<?> updateTask(@RequestBody Task task, HttpServletRequest request) {
         return userService.updateTask(task, request);
+    }
+
+    // Endpoint to get all the previous completed tasks of a user
+    @GetMapping("/tasks/previousCompleted")
+    public ResponseEntity<?> getPreviousCompletedTasks(HttpServletRequest request) {
+        return userService.getPreviousCompletedTasks(request);
+    }
+
+    // Endpoint to get all the previous uncompleted tasks of a user
+    @GetMapping("/tasks/previousIncompleted")
+    public ResponseEntity<?> getPreviousIncompletedTasks(HttpServletRequest request) {
+        return userService.getPreviousIncompletedTasks(request);
     }
 }

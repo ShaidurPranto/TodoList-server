@@ -28,15 +28,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors()  // Ensure CORS is enabled here
+                .cors()
                 .and()
-                .csrf(csrf -> csrf.disable())  // Disable CSRF (because you're using JWTs)
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/signup", "/users/login").permitAll()  // Allow these endpoints without authentication
+                        .requestMatchers("/users/signup", "/users/login" , "/users/test").permitAll()
                         .anyRequest().authenticated()  // Protect the other endpoints
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless authentication (JWT)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // JWT filter before username/password filter
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

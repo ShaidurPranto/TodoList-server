@@ -14,6 +14,7 @@ public class TodoListApplication {
 
 		SpringApplication.run(TodoListApplication.class, args);
 		System.out.println("Hello java");
+		System.out.println("updated te jwt to be valid for 1 minute");
 	}
 
 	// api for demonstration purpose (no usage)

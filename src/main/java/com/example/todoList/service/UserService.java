@@ -40,8 +40,19 @@ public class UserService {
 
     // create a new user
     public User createUser(User user) {
+        System.out.println("inside the user service , create user");
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        User existingUser = userRepository.findByEmail(user.getEmail());
+        System.out.println("REached here");
+        if (existingUser != null) {
+            System.out.println("User with this email already exists");
+            return null; // or throw an exception
+        } else {
+            user.setTasks(new ArrayList<>());
+            userRepository.save(user);
+            System.out.println("User created successfully");
+            return user;
+        }
     }
 
     // get all users
@@ -205,4 +216,63 @@ public class UserService {
         }
     }
 
+    public ResponseEntity<?> getPreviousCompletedTasks(HttpServletRequest request) {
+        String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                List<Task> tasks = user.getTasks();
+                if (tasks != null && !tasks.isEmpty()) {
+
+                    // Filter tasks with eventTime before the current time
+                    List<Task> previousCompletedTasks = tasks.stream()
+                            .filter(task -> task.getEventTime().before(new Date()))
+                            .collect(Collectors.toList());
+
+                    // Filter tasks with status "done"
+                    previousCompletedTasks = previousCompletedTasks.stream()
+                            .filter(task -> task.getStatus().equals("done"))
+                            .collect(Collectors.toList());
+
+                    return ResponseEntity.ok(previousCompletedTasks);
+                } else {
+                    return ResponseEntity.ok(Collections.emptyList()); // No tasks
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+    public ResponseEntity<?> getPreviousIncompletedTasks(HttpServletRequest request) {
+    String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                List<Task> tasks = user.getTasks();
+                if (tasks != null && !tasks.isEmpty()) {
+
+                    // Filter tasks with eventTime before the current time
+                    List<Task> previousUncompletedTasks = tasks.stream()
+                            .filter(task -> task.getEventTime().before(new Date()))
+                            .collect(Collectors.toList());
+
+                    // Filter tasks with status "pending"
+                    previousUncompletedTasks = previousUncompletedTasks.stream()
+                            .filter(task -> task.getStatus().equals("pending"))
+                            .collect(Collectors.toList());
+
+                    return ResponseEntity.ok(previousUncompletedTasks);
+                } else {
+                    return ResponseEntity.ok(Collections.emptyList()); // No tasks
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
 }
