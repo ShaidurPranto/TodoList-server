@@ -4,6 +4,7 @@ import com.example.todoList.model.Task;
 import com.example.todoList.model.User;
 import com.example.todoList.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,10 +44,10 @@ public class UserController {
 
     // Endpoint to login a user
     @PostMapping("/login")
-    public String loginUser(@RequestBody User user) {
+    public ResponseEntity<?> loginUser(@RequestBody User user , HttpServletResponse response) {
         System.out.println("User login request: ");
         System.out.println(user);
-        return userService.loginUser(user);
+        return userService.loginUser(user,response);
     }
 
     // Endpoint to get tasks of a user

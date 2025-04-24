@@ -4,7 +4,9 @@ import com.example.todoList.JWTAuth.JWTService;
 import com.example.todoList.model.Task;
 import com.example.todoList.model.User;
 import com.example.todoList.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,15 +65,26 @@ public class UserService {
     }
 
     // log in a user
-    public String loginUser(User user) {
-        // user is authenticated using email and password
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody User user, HttpServletResponse response) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(user.getEmail());
+            String token = jwtService.generateToken(user.getEmail());
+
+            Cookie cookie = new Cookie("jwt", token);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(60*1); // 1 minute
+            response.addCookie(cookie);
+
+            return ResponseEntity.ok("Login successful");
         } else {
-            return "fail";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
         }
     }
+
 
     // get all tasks of a user
     public ResponseEntity<?> getUserTasks(HttpServletRequest request) {
