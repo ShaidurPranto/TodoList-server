@@ -47,7 +47,6 @@ public class UserService {
         System.out.println("inside the user service , create user");
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         User existingUser = userRepository.findByEmail(user.getEmail());
-        System.out.println("REached here");
         if (existingUser != null) {
             System.out.println("User with this email already exists");
             return null; // or throw an exception
@@ -76,7 +75,7 @@ public class UserService {
             Cookie cookie = new Cookie("jwt", token);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
-            cookie.setMaxAge(60*1); // 1 minute
+            cookie.setMaxAge(60*30); // 30 minute
             response.addCookie(cookie);
 
             return ResponseEntity.ok("Login successful");
@@ -280,6 +279,25 @@ public class UserService {
                             .collect(Collectors.toList());
 
                     return ResponseEntity.ok(previousUncompletedTasks);
+                } else {
+                    return ResponseEntity.ok(Collections.emptyList()); // No tasks
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+    public ResponseEntity<?> getAllTasks(HttpServletRequest request) {
+        String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                List<Task> tasks = user.getTasks();
+                if (tasks != null && !tasks.isEmpty()) {
+                    return ResponseEntity.ok(tasks);
                 } else {
                     return ResponseEntity.ok(Collections.emptyList()); // No tasks
                 }

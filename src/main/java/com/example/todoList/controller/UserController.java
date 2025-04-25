@@ -42,7 +42,7 @@ public class UserController {
         return ResponseEntity.ok("User created successfully");
     }
 
-    // Endpoint to login a user
+    // Endpoint to log in a user
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody User user , HttpServletResponse response) {
         System.out.println("User login request: ");
@@ -50,7 +50,7 @@ public class UserController {
         return userService.loginUser(user,response);
     }
 
-    // Endpoint to get tasks of a user
+    // Endpoint to get tasks of a user ( future tasks only )
     @GetMapping("/tasks")
     public ResponseEntity<?> getUserTasks(HttpServletRequest request) {
         return userService.getUserTasks(request);
@@ -62,7 +62,7 @@ public class UserController {
         return userService.addTask(task, request);
     }
 
-    // Endpoint to delete a task of a user
+    // Endpoint to delete a task of a user ( returns future tasks of user )
     @DeleteMapping("/tasks/delete")
     public ResponseEntity<?> deleteTask(@RequestBody Task task, HttpServletRequest request) {
         return userService.deleteTask(task, request);
@@ -84,5 +84,11 @@ public class UserController {
     @GetMapping("/tasks/previousIncompleted")
     public ResponseEntity<?> getPreviousIncompletedTasks(HttpServletRequest request) {
         return userService.getPreviousIncompletedTasks(request);
+    }
+
+    // Endpoint to get all the tasks of a user
+    @GetMapping("/tasks/all")
+    public ResponseEntity<?> getAllTasks(HttpServletRequest request) {
+        return userService.getAllTasks(request);
     }
 }

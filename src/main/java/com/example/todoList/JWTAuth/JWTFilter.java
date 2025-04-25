@@ -29,6 +29,8 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        System.out.println("JWT filter invoked , but don't know how");
+
         String token = null;
         String username = null;
 
@@ -62,7 +64,7 @@ public class JWTFilter extends OncePerRequestFilter {
                     Cookie newCookie = new Cookie("jwt", newToken);
                     newCookie.setHttpOnly(true);
                     newCookie.setPath("/"); // cookie available across entire app
-                    newCookie.setMaxAge(60 * 1); // 30 minutes
+                    newCookie.setMaxAge(60 * 30); // 30 minutes
                     response.addCookie(newCookie);
                 }
             }
@@ -70,6 +72,7 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response); // continue chain
 
         } catch (Exception e) {
+            System.out.println("JWTFilter : unauthorized");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{ \"error\": \"" + e.getMessage() + "\" }");
