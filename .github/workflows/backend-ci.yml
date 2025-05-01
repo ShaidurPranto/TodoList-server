@@ -20,12 +20,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Grant execute permission for Maven wrapper
+        run: chmod +x ./mvnw
+
       - name: Build Spring Boot app
-        run: |
-          ./mvnw clean package -DskipTests
+        run: ./mvnw clean package -DskipTests
 
       - name: Build Docker image
-        run: |
-          docker build -t todo-backend .
-
-
+        run: docker build -t todo-backend .
