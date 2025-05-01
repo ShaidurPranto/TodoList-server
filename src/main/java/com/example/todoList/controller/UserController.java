@@ -91,4 +91,10 @@ public class UserController {
     public ResponseEntity<?> getAllTasks(HttpServletRequest request) {
         return userService.getAllTasks(request);
     }
+
+    // Endpoint to get name of the user
+    @GetMapping("/name")
+    public ResponseEntity<?> getUserName(HttpServletRequest request) {
+        return userService.getUserName(request);
+    }
 }

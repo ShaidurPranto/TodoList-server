@@ -326,4 +326,18 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
     }
+
+    public ResponseEntity<?> getUserName(HttpServletRequest request) {
+        String email = jwtService.getEmailFromRequest(request);
+        if (email != null) {
+            User user = userRepository.findByEmail(email);
+            if (user != null) {
+                return ResponseEntity.ok(user.getName());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
 }
