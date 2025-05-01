@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# ===== Docker =====
+*.pid
+*.sock
+*.tar
+
+# Ignore Docker build context artifacts
+*.log
+*.tmp
+
+# Ignore docker-compose override files (optional)
+docker-compose.override.yml
+
+# Docker environment file (if used)
+.env
