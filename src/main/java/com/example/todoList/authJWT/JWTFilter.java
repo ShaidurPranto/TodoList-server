@@ -1,6 +1,6 @@
-package com.example.todoList.JWTAuth;
+package com.example.todoList.authJWT;
 
-import com.example.todoList.usernamePasswordAuth.MyUserDetailsService;
+import com.example.todoList.authUsernamePassword.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -54,8 +54,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
                 if (jwtService.validateToken(token, userDetails)) {
                     // 3. Set Authentication in context
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 

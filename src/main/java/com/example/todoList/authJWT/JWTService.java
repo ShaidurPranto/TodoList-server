@@ -1,4 +1,4 @@
-package com.example.todoList.JWTAuth;
+package com.example.todoList.authJWT;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

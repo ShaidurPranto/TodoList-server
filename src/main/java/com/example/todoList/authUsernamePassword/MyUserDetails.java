@@ -1,4 +1,4 @@
-package com.example.todoList.usernamePasswordAuth;
+package com.example.todoList.authUsernamePassword;
 
 import com.example.todoList.model.User;
 import org.springframework.security.core.GrantedAuthority;

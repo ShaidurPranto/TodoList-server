@@ -1,6 +1,6 @@
 package com.example.todoList.service;
 
-import com.example.todoList.JWTAuth.JWTService;
+import com.example.todoList.authJWT.JWTService;
 import com.example.todoList.model.Task;
 import com.example.todoList.model.User;
 import com.example.todoList.repository.UserRepository;

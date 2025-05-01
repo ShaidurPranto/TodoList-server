@@ -14,7 +14,6 @@ public class TodoListApplication {
 
 		SpringApplication.run(TodoListApplication.class, args);
 		System.out.println("Hello java");
-		System.out.println("Testing to get all tasks");
 	}
 
 	// api for demonstration purpose (no usage)
