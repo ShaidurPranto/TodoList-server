@@ -1,0 +1,27 @@
+# Step 1: Build Docker image (run this inside the project folder with Dockerfile)
+docker build -t todo-backend .
+
+# Step 2: Run a container from the image (detached mode, map port 8080)
+docker run -d -p 8080:8080 --name todo-backend-container todo-backend
+
+# Step 3: Check running containers
+docker ps
+docker ps -a (shows all containers)
+
+# Step 4: View logs from the container
+docker logs todo-backend-container
+
+# Step 5: Stop the container
+docker stop todo-backend-container
+
+# Step 6: Start the stopped container again
+docker start todo-backend-container
+
+# Step 7: Restart the container
+docker restart todo-backend-container
+
+# Step 8: Remove the stopped container
+docker rm todo-backend-container
+
+# Step 9: Remove the Docker image (optional, after removing container)
+docker rmi todo-backend
