@@ -42,6 +42,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+
+    private List<Task> sortTaskByEventTimeDescending(List<Task> tasks) {
+        return tasks
+                .stream()
+                .sorted((task1, task2) -> task2.getEventTime().compareTo(task1.getEventTime()))
+                .collect(Collectors.toList());
+    }
+
     // create a new user
     public User createUser(User user) {
         System.out.println("inside the user service , create user");
@@ -230,6 +238,7 @@ public class UserService {
         }
     }
 
+    // history : get all the previous completed tasks of a user
     public ResponseEntity<?> getPreviousCompletedTasks(HttpServletRequest request) {
         String email = jwtService.getEmailFromRequest(request);
         if (email != null) {
@@ -238,15 +247,15 @@ public class UserService {
                 List<Task> tasks = user.getTasks();
                 if (tasks != null && !tasks.isEmpty()) {
 
-                    // Filter tasks with eventTime before the current time
-                    List<Task> previousCompletedTasks = tasks.stream()
-                            .filter(task -> task.getEventTime().before(new Date()))
-                            .collect(Collectors.toList());
+                    List<Task> previousCompletedTasks = tasks;
 
                     // Filter tasks with status "done"
                     previousCompletedTasks = previousCompletedTasks.stream()
                             .filter(task -> task.getStatus().equals("done"))
                             .collect(Collectors.toList());
+
+                    // Sort tasks by eventTime in descending order
+                    previousCompletedTasks = sortTaskByEventTimeDescending(previousCompletedTasks);
 
                     return ResponseEntity.ok(previousCompletedTasks);
                 } else {
@@ -260,6 +269,7 @@ public class UserService {
         }
     }
 
+    // history : get all the previous uncompleted tasks of a user
     public ResponseEntity<?> getPreviousIncompletedTasks(HttpServletRequest request) {
     String email = jwtService.getEmailFromRequest(request);
         if (email != null) {
@@ -278,6 +288,9 @@ public class UserService {
                             .filter(task -> task.getStatus().equals("pending"))
                             .collect(Collectors.toList());
 
+                    // Sort tasks by eventTime in descending order
+                    previousUncompletedTasks = sortTaskByEventTimeDescending(previousUncompletedTasks);
+
                     return ResponseEntity.ok(previousUncompletedTasks);
                 } else {
                     return ResponseEntity.ok(Collections.emptyList()); // No tasks
@@ -290,6 +303,7 @@ public class UserService {
         }
     }
 
+    // history : get all the tasks of a user
     public ResponseEntity<?> getAllTasks(HttpServletRequest request) {
         String email = jwtService.getEmailFromRequest(request);
         if (email != null) {
@@ -297,6 +311,10 @@ public class UserService {
             if (user != null) {
                 List<Task> tasks = user.getTasks();
                 if (tasks != null && !tasks.isEmpty()) {
+
+                    // Sort tasks by eventTime in descending order
+                    tasks = sortTaskByEventTimeDescending(tasks);
+
                     return ResponseEntity.ok(tasks);
                 } else {
                     return ResponseEntity.ok(Collections.emptyList()); // No tasks
