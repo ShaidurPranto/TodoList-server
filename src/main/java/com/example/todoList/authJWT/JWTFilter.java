@@ -26,8 +26,7 @@ public class JWTFilter extends OncePerRequestFilter {
     ApplicationContext context;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         System.out.println("JWT filter invoked , but don't know how");
 
@@ -52,6 +51,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
+
                 if (jwtService.validateToken(token, userDetails)) {
                     // 3. Set Authentication in context
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -65,10 +65,19 @@ public class JWTFilter extends OncePerRequestFilter {
                     newCookie.setPath("/"); // cookie available across entire app
                     newCookie.setMaxAge(60 * 30); // 30 minutes
                     response.addCookie(newCookie);
+
+                    // 5. Continue filter chain
+                    filterChain.doFilter(request, response);
+                    return;
                 }
             }
 
-            filterChain.doFilter(request, response); // continue chain
+            // If token is invalid or missing, respond with 401
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{ \"error\": \"Unauthorized: Missing or invalid token\" }");
+
+            // filterChain.doFilter(request,response);
 
         } catch (Exception e) {
             System.out.println("JWTFilter : unauthorized");
@@ -76,6 +85,13 @@ public class JWTFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.getWriter().write("{ \"error\": \"" + e.getMessage() + "\" }");
         }
+    }
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/users/login") || path.startsWith("/users/signup") || path.startsWith("/users/test");
     }
 
 
