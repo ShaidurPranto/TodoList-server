@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import io.github.cdimascio.dotenv.Dotenv;
 
 @Configuration
 public class CorsConfig {
@@ -14,11 +15,16 @@ public class CorsConfig {
 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                Dotenv dotenv = Dotenv.load();
+                String frontendUrl = dotenv.get("FRONTEND_URL");
+                System.out.println("Cors origin allowed from , Frontend URL: " + frontendUrl);
+
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173","http://localhost:3000") // frontend URL
+                        .allowedOrigins("http://localhost:5173", "http://localhost:3000", frontendUrl)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowCredentials(true) // if you're using cookies
-                        .allowedHeaders("*");
+                        .allowCredentials(true)
+                        .allowedHeaders("*")
+                        .exposedHeaders("Set-Cookie");
             }
         };
     }
