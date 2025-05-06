@@ -62,8 +62,10 @@ public class JWTFilter extends OncePerRequestFilter {
                     String newToken = jwtService.generateToken(username);
                     Cookie newCookie = new Cookie("jwt", newToken);
                     newCookie.setHttpOnly(true);
+                    newCookie.setSecure(true); // Set to true if using HTTPS
                     newCookie.setPath("/"); // cookie available across entire app
                     newCookie.setMaxAge(60 * 30); // 30 minutes
+                    newCookie.setAttribute("SameSite","None");
                     response.addCookie(newCookie);
 
                     // 5. Continue filter chain
