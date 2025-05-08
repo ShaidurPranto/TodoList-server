@@ -50,7 +50,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         Cookie cookie = new Cookie("jwt", jwt);
         cookie.setHttpOnly(true);
-        // cookie.setSecure(true); // Set to true in production
+        cookie.setSecure(true); // Set to true in production
         cookie.setPath("/");
         cookie.setMaxAge(60 * 30); // 30 minutes
         // cookie.setAttribute("SameSite", "None");

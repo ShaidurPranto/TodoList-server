@@ -85,7 +85,7 @@ public class UserService {
             // cookie.setSecure(true); // must be set for same-site = None to work
             cookie.setPath("/");
             cookie.setMaxAge(60*30); // 30 minute
-            // cookie.setAttribute("SameSite","None"); // Set SameSite attribute to None
+            cookie.setAttribute("SameSite","None"); // Set SameSite attribute to None
             response.addCookie(cookie);
 
             return ResponseEntity.ok("Login successful");
