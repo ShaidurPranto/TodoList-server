@@ -53,7 +53,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         cookie.setSecure(true); // Set to true in production
         cookie.setPath("/");
         cookie.setMaxAge(60 * 30); // 30 minutes
-        // cookie.setAttribute("SameSite", "None");
+        cookie.setAttribute("SameSite", "None"); // set true in production
 
         response.addCookie(cookie);
         System.out.println("redirecting to "+ AppEnv.getFrontendUrl()+"/homeUser");
