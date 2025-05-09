@@ -46,3 +46,9 @@ docker-compose.override.yml
 
 # Docker environment file (if used)
 .env
+
+# Ignore actual run script
+run.sh
+
+# Allow demo script
+!demo.sh
